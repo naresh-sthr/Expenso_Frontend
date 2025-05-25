@@ -5,6 +5,7 @@ import API_BASE_URL from "./api";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router"; // ✅ FIXED
+import "react-toastify/dist/ReactToastify.css";
 
 const fadeIn = {
   hidden: { opacity: 0, y: 20 },
@@ -13,6 +14,7 @@ const fadeIn = {
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -21,6 +23,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/user/login`, form);
       if (res.status === 200) {
@@ -33,6 +36,8 @@ const Login = () => {
     } catch (error) {
       const message = error.response?.data?.message || "Login failed";
       toast.error(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,7 +50,18 @@ const Login = () => {
         transition={{ duration: 0.6 }}
         className="bg-slate-900 p-8 rounded-xl shadow-lg w-full max-w-md border border-slate-700"
       >
-        <ToastContainer />
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+        />
         <h2 className="text-3xl font-bold text-white text-center mb-6">
           Login to <span className="text-sky-400">Expenso</span>
         </h2>
@@ -70,9 +86,12 @@ const Login = () => {
           />
           <button
             type="submit"
-            className="mt-4 bg-sky-400 hover:bg-sky-300 text-slate-900 font-semibold py-3 rounded-md transition"
+            disabled={loading}
+            className={`mt-4 bg-sky-400 hover:bg-sky-300 text-slate-900 font-semibold py-3 rounded-md transition ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
-            Log In
+            {loading ? "Logging in..." : "Log In"}
           </button>
         </form>
         <p className="text-slate-400 text-sm mt-4 text-center">
