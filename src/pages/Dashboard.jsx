@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from "react";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import API_BASE_URL from "../components/api";
 
@@ -44,8 +53,8 @@ const Dashboard = () => {
         if (!token) throw new Error("No auth token found");
 
         const headers = {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         };
 
         const [expenseRes, incomeRes] = await Promise.all([
@@ -83,6 +92,10 @@ const Dashboard = () => {
     );
   }
 
+  // Format currency in INR with commas
+  const formatINR = (value) =>
+    value.toLocaleString("en-IN", { style: "currency", currency: "INR" });
+
   return (
     <div className="p-6 text-white min-h-screen bg-slate-900">
       <h1 className="text-3xl font-bold mb-8">Dashboard Overview</h1>
@@ -95,11 +108,22 @@ const Dashboard = () => {
             <p className="text-slate-400">No income data to display.</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={incomeData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+              <LineChart
+                data={incomeData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#444" />
                 <XAxis dataKey="month" stroke="#ccc" />
-                <YAxis stroke="#ccc" />
-                <Tooltip />
+                <YAxis
+                  stroke="#ccc"
+                  tickFormatter={(value) =>
+                    value.toLocaleString("en-IN", { maximumFractionDigits: 0 })
+                  }
+                />
+                <Tooltip
+                  formatter={(value) => formatINR(value)}
+                  contentStyle={{ backgroundColor: "#333", borderRadius: "8px" }}
+                />
                 <Legend />
                 <Line
                   type="monotone"
@@ -129,13 +153,18 @@ const Dashboard = () => {
                   cy="50%"
                   outerRadius={100}
                   fill="#8884d8"
-                  label
+                  label={({ category, percent }) =>
+                    `${category}: ${(percent * 100).toFixed(0)}%`
+                  }
                 >
                   {expenseData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  formatter={(value) => formatINR(value)}
+                  contentStyle={{ backgroundColor: "#333", borderRadius: "8px" }}
+                />
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
@@ -148,8 +177,8 @@ const Dashboard = () => {
         <h2 className="text-xl font-semibold mb-4">Summary</h2>
         <p className="text-slate-300">
           You earned a total of{" "}
-          <span className="font-bold">${totalIncome.toLocaleString()}</span> over your tracked period and spent{" "}
-          <span className="font-bold">${totalExpense.toLocaleString()}</span> on various categories.
+          <span className="font-bold">{formatINR(totalIncome)}</span> over your tracked period and spent{" "}
+          <span className="font-bold">{formatINR(totalExpense)}</span> on various categories.
           Keep tracking your expenses and income to manage your finances better!
         </p>
       </div>

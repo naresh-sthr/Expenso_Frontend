@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Legend } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Legend,
+} from "recharts";
 import axios from "axios";
 import API_BASE_URL from "../components/api";
 
@@ -21,7 +32,6 @@ const Analytics = () => {
 
         setIncome(incomeRes.data.incomes);
         setExpenses(expenseRes.data.expenses);
-        // console.log(incomeRes,expenseRes)
       } catch (err) {
         console.error("Failed to load analytics data", err);
       } finally {
@@ -39,7 +49,7 @@ const Analytics = () => {
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
   const balance = totalIncome - totalExpenses;
 
-  // Pie chart data
+  // Pie chart data for expenses by category
   const categoryData = Object.values(
     expenses.reduce((acc, curr) => {
       if (!acc[curr.category]) acc[curr.category] = { name: curr.category, value: 0 };
@@ -48,14 +58,21 @@ const Analytics = () => {
     }, {})
   );
 
-  // Monthly data
+  // Monthly data aggregation for bar chart
   const monthlyData = {};
 
-  [...income, ...expenses].forEach((item) => {
+  // Aggregate income by month
+  income.forEach((item) => {
     const month = new Date(item.date).toLocaleString("default", { month: "short", year: "numeric" });
     if (!monthlyData[month]) monthlyData[month] = { month, income: 0, expenses: 0 };
-    if (item.type === "income") monthlyData[month].income += item.amount;
-    else monthlyData[month].expenses += item.amount;
+    monthlyData[month].income += item.amount;
+  });
+
+  // Aggregate expenses by month
+  expenses.forEach((item) => {
+    const month = new Date(item.date).toLocaleString("default", { month: "short", year: "numeric" });
+    if (!monthlyData[month]) monthlyData[month] = { month, income: 0, expenses: 0 };
+    monthlyData[month].expenses += item.amount;
   });
 
   const monthlyChartData = Object.values(monthlyData).sort(
