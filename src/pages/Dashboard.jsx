@@ -21,7 +21,6 @@ const Dashboard = () => {
   const [incomeData, setIncomeData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Utility to group expenses by category and sum amount
   const groupExpensesByCategory = (expenses) => {
     const grouped = {};
     expenses.forEach(({ category, amount }) => {
@@ -30,7 +29,6 @@ const Dashboard = () => {
     return Object.entries(grouped).map(([category, value]) => ({ category, value }));
   };
 
-  // Utility to group income by month and sum amount
   const groupIncomeByMonth = (incomes) => {
     const grouped = {};
     incomes.forEach(({ date, amount }) => {
@@ -87,12 +85,11 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="p-6 text-white min-h-screen bg-slate-900 flex justify-center items-center">
-        <p>Loading dashboard...</p>
+        <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  // Format currency in INR with commas
   const formatINR = (value) =>
     value.toLocaleString("en-IN", { style: "currency", currency: "INR" });
 
@@ -101,7 +98,6 @@ const Dashboard = () => {
       <h1 className="text-3xl font-bold mb-8">Dashboard Overview</h1>
 
       <div className="grid gap-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
-        {/* Income Over Time - Line Chart */}
         <div className="bg-slate-800 p-6 rounded-lg shadow-lg">
           <h2 className="text-xl font-semibold mb-4">Income Over Time</h2>
           {incomeData.length === 0 ? (
@@ -137,7 +133,6 @@ const Dashboard = () => {
           )}
         </div>
 
-        {/* Expense Breakdown - Pie Chart */}
         <div className="bg-slate-800 p-6 rounded-lg shadow-lg">
           <h2 className="text-xl font-semibold mb-4">Expense Breakdown</h2>
           {expenseData.length === 0 ? (
@@ -172,7 +167,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Summary Section */}
       <div className="mt-10 bg-slate-800 p-6 rounded-lg shadow-lg">
         <h2 className="text-xl font-semibold mb-4">Summary</h2>
         <p className="text-slate-300">
