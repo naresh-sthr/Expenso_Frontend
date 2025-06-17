@@ -14,7 +14,6 @@ const Expenses = () => {
   const [date, setDate] = useState("");
   const [emoji, setEmoji] = useState("");
   const [editId, setEditId] = useState(null);
-
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -90,7 +89,6 @@ const Expenses = () => {
       toast.error("Category and amount are required");
       return;
     }
-    setError("");
 
     try {
       const token = localStorage.getItem("token");
@@ -131,19 +129,6 @@ const Expenses = () => {
     }
   };
 
-  const renderSkeletons = () => {
-    return [...Array(6)].map((_, index) => (
-      <div
-        key={index}
-        className="border border-slate-600 rounded-lg p-6 bg-slate-800 animate-pulse h-40"
-      >
-        <div className="w-12 h-12 bg-slate-700 rounded-full mb-4"></div>
-        <div className="h-4 bg-slate-700 rounded mb-2 w-3/4"></div>
-        <div className="h-3 bg-slate-700 rounded w-1/2"></div>
-      </div>
-    ));
-  };
-
   return (
     <div className="p-6 text-white">
       <ToastContainer position="top-right" />
@@ -160,47 +145,49 @@ const Expenses = () => {
           <Plus className="mr-2" /> Add Expense
         </div>
 
-        {loading
-          ? renderSkeletons()
-          : expenses.length === 0
-          ? <p className="text-slate-400 col-span-full">No expenses found.</p>
-          : expenses.map((exp) => (
-              <div
-                key={exp._id}
-                className="relative border border-slate-600 rounded-lg p-6 flex flex-col justify-between bg-slate-800 shadow-md hover:shadow-lg transition"
-              >
-                <div className="flex items-center gap-4">
-                  <span className="text-4xl">{exp.emoji || "💸"}</span>
-                  <div className="flex-1">
-                    <p className="font-semibold text-white text-lg">{exp.category}</p>
-                    <p className="text-slate-400 text-sm truncate">{exp.note || "No note"}</p>
-                    <p className="text-slate-500 text-xs mt-1">
-                      {new Date(exp.date).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="text-green-400 font-bold text-xl">
-                    ₹{exp.amount.toFixed(2)}
-                  </div>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => openEditModal(exp)}
-                      className="p-1 rounded hover:bg-slate-700 transition"
-                    >
-                      <Edit2 size={20} className="text-sky-400" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(exp._id)}
-                      className="p-1 rounded hover:bg-red-700 transition"
-                    >
-                      <Trash2 size={20} className="text-red-500" />
-                    </button>
-                  </div>
+        {loading ? (
+          <div className="flex justify-center items-center col-span-full h-60">
+            <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : expenses.length === 0 ? (
+          <p className="text-slate-400 col-span-full">No expenses found.</p>
+        ) : (
+          expenses.map((exp) => (
+            <div
+              key={exp._id}
+              className="relative border border-slate-600 rounded-lg p-6 flex flex-col justify-between bg-slate-800"
+            >
+              <div className="flex items-center gap-4">
+                <span className="text-4xl">{exp.emoji || "💸"}</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-white text-lg">{exp.category}</p>
+                  <p className="text-slate-400 text-sm truncate">{exp.note || "No note"}</p>
+                  <p className="text-slate-500 text-xs mt-1">
+                    {new Date(exp.date).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
-            ))}
+
+              <div className="mt-4 flex items-center justify-between">
+                <div className="text-green-400 font-bold text-xl">₹{exp.amount.toFixed(2)}</div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => openEditModal(exp)}
+                    className="p-1 rounded hover:bg-slate-700 transition"
+                  >
+                    <Edit2 size={20} className="text-sky-400" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(exp._id)}
+                    className="p-1 rounded hover:bg-red-700 transition"
+                  >
+                    <Trash2 size={20} className="text-red-500" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Modal */}
@@ -225,63 +212,52 @@ const Expenses = () => {
               <input
                 type="text"
                 placeholder="Category"
-                className="p-3 rounded bg-slate-800 text-white"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
+                className="bg-slate-800 text-white p-2 rounded border border-slate-600"
               />
               <input
                 type="number"
                 placeholder="Amount"
-                className="p-3 rounded bg-slate-800 text-white"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                className="bg-slate-800 text-white p-2 rounded border border-slate-600"
               />
               <input
                 type="text"
                 placeholder="Note (optional)"
-                className="p-3 rounded bg-slate-800 text-white"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
+                className="bg-slate-800 text-white p-2 rounded border border-slate-600"
               />
               <input
                 type="date"
-                className="p-3 rounded bg-slate-800 text-white cursor-pointer"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
+                className="bg-slate-800 text-white p-2 rounded border border-slate-600"
               />
 
-              {/* Emoji Picker */}
-              <div className="relative">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  className="p-2 bg-slate-800 rounded hover:bg-slate-700 text-white flex items-center justify-center w-10 h-10"
+                  className="flex items-center gap-1 px-3 py-2 bg-slate-700 rounded text-white hover:bg-slate-600"
                 >
-                  {emoji ? <span className="text-2xl">{emoji}</span> : <Smile size={24} />}
+                  <Smile size={16} />
+                  {emoji || "Pick Emoji"}
                 </button>
-                {showEmojiPicker && (
-                  <div
-                    className="absolute left-0 right-0 mt-2 bg-white rounded-lg shadow-lg z-50"
-                    style={{ maxHeight: 350, overflowY: "auto" }}
-                  >
-                    <EmojiPicker onEmojiClick={handleEmojiClick} theme="light" height={350} />
-                  </div>
-                )}
               </div>
-            </div>
 
-            {/* Buttons */}
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 text-white"
-              >
-                Cancel
-              </button>
+              {showEmojiPicker && (
+                <div className="z-50 mt-2">
+                  <EmojiPicker onEmojiClick={handleEmojiClick} theme="dark" />
+                </div>
+              )}
+
               <button
                 onClick={handleSaveExpense}
-                className="px-4 py-2 rounded bg-sky-500 hover:bg-sky-400 text-white"
+                className="mt-4 px-4 py-2 bg-sky-500 text-white rounded hover:bg-sky-600 transition"
               >
-                {editId ? "Update" : "Add"}
+                {editId ? "Update" : "Add"} Expense
               </button>
             </div>
           </div>
